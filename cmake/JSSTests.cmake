@@ -78,6 +78,10 @@ macro(jss_tests)
         NAME "BigObjectIdentifier"
         COMMAND "org.mozilla.jss.tests.BigObjectIdentifier"
     )
+    jss_test_java(
+        NAME "JSS_Test_PR_FileDesc"
+        COMMAND "org.mozilla.jss.tests.TestPRFD"
+    )
     if ((${Java_VERSION_MAJOR} EQUAL 1) AND (${Java_VERSION_MINOR} LESS 9))
         jss_test_java(
             NAME "Test_PKCS11Constants.java_for_Sun_compatibility"
@@ -161,6 +165,11 @@ macro(jss_tests)
         NAME "SSLClientAuth"
         COMMAND "org.mozilla.jss.tests.SSLClientAuth" "${RESULTS_NSSDB_OUTPUT_DIR}" "${PASSWORD_FILE}" "${JSS_TEST_PORT_CLIENTAUTH}" "50"
         DEPENDS "List_CA_certs"
+    )
+    jss_test_exec(
+        NAME "TestBufferPRFD"
+        COMMAND "${BIN_OUTPUT_DIR}/TestBufferPRFD" "${RESULTS_NSSDB_OUTPUT_DIR}" "${DB_PWD}"
+        DEPENDS "List_CA_certs" "generate_c_TestBufferPRFD"
     )
     jss_test_java(
         NAME "Key_Generation"
@@ -306,6 +315,7 @@ endmacro()
 macro(jss_tests_compile)
     jss_tests_compile_c("${PROJECT_SOURCE_DIR}/org/mozilla/jss/tests/buffer_size_1.c" "${BIN_OUTPUT_DIR}/buffer_size_1" "buffer_size_1")
     jss_tests_compile_c("${PROJECT_SOURCE_DIR}/org/mozilla/jss/tests/buffer_size_4.c" "${BIN_OUTPUT_DIR}/buffer_size_4" "buffer_size_4")
+    jss_tests_compile_c("${PROJECT_SOURCE_DIR}/org/mozilla/jss/tests/TestBufferPRFD.c" "${BIN_OUTPUT_DIR}/TestBufferPRFD" "TestBufferPRFD")
 endmacro()
 
 macro(jss_tests_compile_c C_FILE C_OUTPUT C_TARGET)
@@ -338,6 +348,7 @@ function(jss_test_java)
     list(APPEND EXEC_COMMAND "-classpath")
     list(APPEND EXEC_COMMAND "${TEST_CLASSPATH}")
     list(APPEND EXEC_COMMAND "-ea")
+    list(APPEND EXEC_COMMAND "-Djava.library.path=${CMAKE_BINARY_DIR}")
     set(EXEC_COMMAND "${EXEC_COMMAND};${TEST_JAVA_COMMAND}")
 
     if(TEST_JAVA_DEPENDS)
